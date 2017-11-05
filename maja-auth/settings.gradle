@@ -1,0 +1,3 @@
+def n = 'maja-web'
+includeFlat n
+//project(":$n").projectDir = file("../../$n/$n")
