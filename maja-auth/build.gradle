@@ -2,7 +2,7 @@ apply plugin: 'java'
 apply plugin: 'eclipse'
 
 group = 'de.mwvb.maja'
-version = '0.1.0'
+version = '0.1.1'
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -10,13 +10,15 @@ compileJava.options.encoding = 'windows-1252'
 compileTestJava.options.encoding = 'windows-1252'
 
 dependencies {
-	compile project(':maja-web')
+//	compile project(':maja-web')
+	compile 'com.github.SoltauFintel:maja-web:0.1.0'
 	compile 'com.github.scribejava:scribejava-apis:4.2.0'
 	compile 'org.codehaus.jackson:jackson-mapper-asl:1.9.2'
 }
 
 repositories {
 	mavenCentral()
+	maven { url 'https://jitpack.io' }
 }
 
 task sourcesJar(type: Jar) {
