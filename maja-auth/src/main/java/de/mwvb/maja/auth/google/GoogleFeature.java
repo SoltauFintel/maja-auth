@@ -10,7 +10,6 @@ public class GoogleFeature implements AuthFeature {
 	@Override
 	public void init(AuthPlugin owner) {
 		this.authPlugin = owner;
-		System.out.println("init AuthFeature for Google");
 	}
 
 	@Override

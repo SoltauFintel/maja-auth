@@ -13,7 +13,6 @@ public class FacebookFeature implements AuthFeature {
 	@Override
 	public void init(AuthPlugin owner) {
 		this.authPlugin = owner;
-		System.out.println("init AuthFeature for Facebook");
 	}
 
 	@Override
