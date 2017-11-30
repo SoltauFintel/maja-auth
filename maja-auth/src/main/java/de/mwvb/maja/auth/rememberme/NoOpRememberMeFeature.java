@@ -17,4 +17,8 @@ public class NoOpRememberMeFeature implements RememberMeFeature {
 	public IKnownUser getUserIfKnown(Request req, Response res) {
 		return null; // important: must return null!
 	}
+
+	@Override
+	public void printInfo() {
+	}
 }

@@ -36,4 +36,6 @@ public interface RememberMeFeature {
 	 * @param userId contains service name and foreign user id
 	 */
 	void forget(Response res, String userId);
+	
+	void printInfo();
 }
