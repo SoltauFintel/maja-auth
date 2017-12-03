@@ -11,6 +11,12 @@ import spark.Response;
 public interface RememberMeFeature {
 
 	/**
+	 * Must be called by the owner after dependency injection is finished.
+	 * The implementation can make broadcasts at this place.
+	 */
+	void install();
+	
+	/**
 	 * Remembers user. Used for login.
 	 * 
 	 * @param rememberMeWanted
