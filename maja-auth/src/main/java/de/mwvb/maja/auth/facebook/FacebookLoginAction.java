@@ -8,6 +8,7 @@ import com.github.scribejava.core.oauth.OAuth20Service;
 
 import de.mwvb.maja.auth.AuthPlugin;
 import de.mwvb.maja.auth.HandleStorage;
+import de.mwvb.maja.auth.LoginData;
 import de.mwvb.maja.web.ActionBase;
 import de.mwvb.maja.web.AppConfig;
 
