@@ -29,7 +29,7 @@ public class FacebookLoginAction extends ActionBase {
 	@Override
 	public String run() {
 		boolean remember = !"0".equals(req.queryParams("remember"));
-		AppConfig config = new AppConfig();
+		AppConfig config = new AppConfig(); // TODO use D.I. !
 		String secretState = config.get("facebook.state") + new Random().nextInt(999999);
 		String callback = config.get("host") + this.callback;
 		OAuth20Service oauth = new ServiceBuilder(config.get("facebook.key"))
