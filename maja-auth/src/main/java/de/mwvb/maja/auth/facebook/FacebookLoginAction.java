@@ -7,7 +7,7 @@ import com.github.scribejava.core.builder.ServiceBuilder;
 import com.github.scribejava.core.oauth.OAuth20Service;
 
 import de.mwvb.maja.auth.AuthPlugin;
-import de.mwvb.maja.auth.HandleStorage;
+import de.mwvb.maja.auth.LoginDataStorage;
 import de.mwvb.maja.auth.LoginData;
 import de.mwvb.maja.web.ActionBase;
 import de.mwvb.maja.web.AppConfig;
@@ -18,7 +18,7 @@ import de.mwvb.maja.web.AppConfig;
  * <p>Can have URL argument "remember=0" if it's not wanted that the login is remembered.</p>
  */
 public class FacebookLoginAction extends ActionBase {
-	private static final HandleStorage<LoginData> handles = new HandleStorage<>();
+	private static final LoginDataStorage<LoginData> handles = new LoginDataStorage<>();
 	private final AuthPlugin authPlugin;
 	private final String callback;
 	
