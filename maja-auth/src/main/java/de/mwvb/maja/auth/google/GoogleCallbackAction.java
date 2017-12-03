@@ -11,7 +11,7 @@ import com.github.scribejava.core.model.OAuthRequest;
 import com.github.scribejava.core.model.Verb;
 import com.github.scribejava.core.oauth.OAuth20Service;
 
-import de.mwvb.maja.auth.facebook.FacebookHandle;
+import de.mwvb.maja.auth.facebook.LoginData;
 import de.mwvb.maja.web.ActionBase;
 import spark.Request;
 
@@ -21,7 +21,7 @@ public class GoogleCallbackAction extends ActionBase {
 	@Override
 	public String run() {
 		String key = req.queryParams(KEY);
-		FacebookHandle handle = GoogleLoginAction.pop(key);
+		LoginData handle = GoogleLoginAction.pop(key);
 		if (handle == null) {
 			throw new RuntimeException("Login tooks too long!");
 			// host= Eintrag in AppConfig.properties könnte falsch sein.
@@ -33,7 +33,7 @@ public class GoogleCallbackAction extends ActionBase {
 		}
 	}
 	
-	private String login(Request req, spark.Response res, FacebookHandle h) throws IOException, InterruptedException, ExecutionException {
+	private String login(Request req, spark.Response res, LoginData h) throws IOException, InterruptedException, ExecutionException {
 		String code = req.queryParams("code");
 		OAuth20Service oauth = h.getOauth();
 		OAuth2AccessToken accessToken = oauth.getAccessToken(code);

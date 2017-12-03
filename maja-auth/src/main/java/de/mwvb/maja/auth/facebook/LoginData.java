@@ -4,13 +4,13 @@ import com.github.scribejava.core.oauth.OAuth20Service;
 
 import de.mwvb.maja.auth.AuthPlugin;
 
-public class FacebookHandle {
+public class LoginData {
 	private final OAuth20Service oauth;
 	private final String url;
 	private final AuthPlugin authPlugin;
 	private final boolean rememberMeWanted;
 	
-	public FacebookHandle(OAuth20Service oauth, String url, AuthPlugin authPlugin, boolean rememberMeWanted) {
+	public LoginData(OAuth20Service oauth, String url, AuthPlugin authPlugin, boolean rememberMeWanted) {
 		this.oauth = oauth;
 		this.url = url;
 		this.authPlugin = authPlugin;

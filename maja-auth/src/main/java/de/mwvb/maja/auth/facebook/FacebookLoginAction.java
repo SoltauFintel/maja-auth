@@ -17,7 +17,7 @@ import de.mwvb.maja.web.AppConfig;
  * <p>Can have URL argument "remember=0" if it's not wanted that the login is remembered.</p>
  */
 public class FacebookLoginAction extends ActionBase {
-	private static final HandleStorage<FacebookHandle> handles = new HandleStorage<>();
+	private static final HandleStorage<LoginData> handles = new HandleStorage<>();
 	private final AuthPlugin authPlugin;
 	private final String callback;
 	
@@ -40,12 +40,12 @@ public class FacebookLoginAction extends ActionBase {
 				.build(FacebookApi.instance());
 		String facebookUrl = config.get("facebook.url");
 		String url = oauth.getAuthorizationUrl();
-		handles.push(secretState, new FacebookHandle(oauth, facebookUrl, authPlugin, remember));
+		handles.push(secretState, new LoginData(oauth, facebookUrl, authPlugin, remember));
 		res.redirect(url);
 		return "";
 	}
 	
-	public static FacebookHandle pop(String key) {
+	public static LoginData pop(String key) {
 		return handles.pop(key);
 	}
 }
