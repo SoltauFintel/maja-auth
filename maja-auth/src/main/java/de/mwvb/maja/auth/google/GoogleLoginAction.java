@@ -7,29 +7,26 @@ import java.util.Random;
 import com.github.scribejava.apis.GoogleApi20;
 import com.github.scribejava.core.builder.ServiceBuilder;
 import com.github.scribejava.core.oauth.OAuth20Service;
+import com.google.inject.Inject;
 
 import de.mwvb.maja.auth.AuthPlugin;
-import de.mwvb.maja.auth.LoginDataStorage;
 import de.mwvb.maja.auth.LoginData;
+import de.mwvb.maja.auth.LoginDataStorage;
 import de.mwvb.maja.web.ActionBase;
 import de.mwvb.maja.web.AppConfig;
 
 public class GoogleLoginAction extends ActionBase {
-	private static final LoginDataStorage<LoginData> handles = new LoginDataStorage<>();
-	private final AuthPlugin authPlugin;
-	private final String callback;
+	private static final LoginDataStorage<LoginData> loginDataStorage = new LoginDataStorage<>();
+	@Inject
+	private AuthPlugin authPlugin;
+	@Inject
+	private AppConfig config;
 	
-	public GoogleLoginAction(AuthPlugin authPlugin, String callback) {
-		this.authPlugin = authPlugin;
-		this.callback = callback;
-	}
-
 	@Override
 	public String run() {
 		boolean remember = !"0".equals(req.queryParams("remember"));
-		AppConfig config = new AppConfig(); // TODO use D.I. !
 		String secretState = config.get("google.state") + new Random().nextInt(999999);
-		String callback = config.get("host") + this.callback;
+		String callback = config.get("host") + GoogleFeature.CALLBACK;
 		OAuth20Service oauth = new ServiceBuilder(config.get("google.key"))
 				.apiSecret(config.get("google.secret"))
 				.scope("email")
@@ -44,12 +41,12 @@ public class GoogleLoginAction extends ActionBase {
         additionalParams.put("prompt", "consent");
 		String url = oauth.getAuthorizationUrl(additionalParams);
 		String url2 = config.get("google.url");
-		handles.push(secretState, new LoginData(oauth, url2, authPlugin, remember));
+		loginDataStorage.push(secretState, new LoginData(oauth, url2, authPlugin, remember));
 		res.redirect(url);
 		return "";
 	}
 	
 	public static LoginData pop(String key) {
-		return handles.pop(key);
+		return loginDataStorage.pop(key);
 	}
 }

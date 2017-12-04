@@ -1,30 +1,25 @@
 package de.mwvb.maja.auth.facebook;
 
+import com.google.inject.Inject;
+
 import de.mwvb.maja.auth.AuthFeature;
 import de.mwvb.maja.auth.AuthPlugin;
-import de.mwvb.maja.web.Action;
+import de.mwvb.maja.web.Routes;
 
 /**
  * Add this feature to AuthPlugin to allow the user to use Facebook for authorization.
  */
 public class FacebookFeature implements AuthFeature {
+	public static final String CALLBACK = "/login/facebook-callback";
+	@Inject
 	private AuthPlugin authPlugin;
+	@Inject
+	private Routes routes;
 	
-	@Override
-	public void init(AuthPlugin owner) {
-		this.authPlugin = owner;
-	}
-
 	@Override
 	public void routes() {
 		authPlugin.addNotProtected("/login/");
-		String callback = "/login/facebook-callback";
-		Action.get("/login/facebook", new FacebookLoginAction(authPlugin, callback));
-		Action.get(callback, FacebookCallbackAction.class);
-	}
-
-	@Override
-	public void printInfo() {
-		System.out.println("Facebook authentication");
+		routes._get("/login/facebook", FacebookLoginAction.class);
+		routes._get(CALLBACK, FacebookCallbackAction.class);
 	}
 }

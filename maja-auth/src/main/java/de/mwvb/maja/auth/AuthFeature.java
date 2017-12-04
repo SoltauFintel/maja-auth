@@ -5,9 +5,5 @@ package de.mwvb.maja.auth;
  */
 public interface AuthFeature {
 
-	void init(AuthPlugin owner);
-	
 	void routes();
-	
-	void printInfo();
 }
