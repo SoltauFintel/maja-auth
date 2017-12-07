@@ -38,7 +38,7 @@ public class FacebookCallbackAction extends ActionBase {
 		String code = req.queryParams("code");
 		OAuth20Service oauth = h.getOauth();
 		OAuth2AccessToken accessToken = oauth.getAccessToken(code);
-		OAuthRequest request = new OAuthRequest(Verb.GET, h.getUrl());
+		OAuthRequest request = new OAuthRequest(Verb.GET, h.getFacebookUrl());
 		oauth.signRequest(accessToken, request);
 		com.github.scribejava.core.model.Response response = oauth.execute(request);
 		if (response.getCode() == 200) {

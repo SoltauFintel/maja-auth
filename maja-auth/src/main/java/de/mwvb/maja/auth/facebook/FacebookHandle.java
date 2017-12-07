@@ -4,15 +4,18 @@ import com.github.scribejava.core.oauth.OAuth20Service;
 
 import de.mwvb.maja.auth.AuthPlugin;
 
+/**
+ * Facebook login handle - and storage for those objects
+ */
 public class FacebookHandle {
 	private final OAuth20Service oauth;
-	private final String url;
+	private final String facebookUrl;
 	private final AuthPlugin authPlugin;
 	private final boolean rememberMeWanted;
 	
-	public FacebookHandle(OAuth20Service oauth, String url, AuthPlugin authPlugin, boolean rememberMeWanted) {
+	public FacebookHandle(OAuth20Service oauth, String facebookUrl, AuthPlugin authPlugin, boolean rememberMeWanted) {
 		this.oauth = oauth;
-		this.url = url;
+		this.facebookUrl = facebookUrl;
 		this.authPlugin = authPlugin;
 		this.rememberMeWanted = rememberMeWanted;
 	}
@@ -21,8 +24,12 @@ public class FacebookHandle {
 		return oauth;
 	}
 
+	public String getFacebookUrl() {
+		return facebookUrl;
+	}
+	
 	public String getUrl() {
-		return url;
+		return getFacebookUrl();
 	}
 
 	public AuthPlugin getAuthPlugin() {
