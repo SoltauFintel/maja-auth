@@ -6,21 +6,21 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
 /**
- * Universal storage for login data objects, that cannot become too big.
+ * Universal storage for auth handles, that cannot become too big.
  */
-public class LoginDataStorage<LOGINDATA> {
-	private final Cache<String, LOGINDATA> storage = // thread-safe and cannot become too big 
+public class HandleStorage<HANDLE> {
+	private final Cache<String, HANDLE> data = // thread-safe and cannot become too big 
 			CacheBuilder.newBuilder().initialCapacity(20).maximumSize(1000)
 				.expireAfterWrite(5, TimeUnit.MINUTES).build();
 
-	public synchronized void push(String key, LOGINDATA handle) {
-		storage.put(key, handle);
+	public synchronized void push(String key, HANDLE handle) {
+		data.put(key, handle);
 	}
 	
-	public synchronized LOGINDATA pop(String key) {
-		LOGINDATA ret = storage.getIfPresent(key);
+	public synchronized HANDLE pop(String key) {
+		HANDLE ret = data.getIfPresent(key);
 		if (ret != null) {
-			storage.invalidate(key);
+			data.invalidate(key);
 		}
 		return ret;
 	}
