@@ -1,6 +1,8 @@
-package de.mwvb.maja.auth;
+package de.mwvb.maja.auth.facebook;
 
 import com.github.scribejava.core.oauth.OAuth20Service;
+
+import de.mwvb.maja.auth.AuthPlugin;
 
 public class LoginData {
 	private final OAuth20Service oauth;

@@ -10,7 +10,6 @@ import com.github.scribejava.core.model.OAuthRequest;
 import com.github.scribejava.core.model.Verb;
 import com.github.scribejava.core.oauth.OAuth20Service;
 
-import de.mwvb.maja.auth.LoginData;
 import de.mwvb.maja.web.ActionBase;
 import spark.Request;
 
