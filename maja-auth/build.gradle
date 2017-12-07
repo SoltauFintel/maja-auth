@@ -10,7 +10,7 @@ compileJava.options.encoding = 'windows-1252'
 compileTestJava.options.encoding = 'windows-1252'
 
 dependencies {
-	compile 'com.github.SoltauFintel:maja-web:master-SNAPSHOT'
+	compile 'com.github.SoltauFintel:maja-web:6d6373fdb6'
 	compile 'com.github.scribejava:scribejava-apis:4.2.0'
 	compile 'org.codehaus.jackson:jackson-mapper-asl:1.9.2'
 }
