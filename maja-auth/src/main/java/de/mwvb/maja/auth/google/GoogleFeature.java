@@ -1,8 +1,8 @@
 package de.mwvb.maja.auth.google;
 
 import de.mwvb.maja.auth.AuthFeature;
-import de.mwvb.maja.auth.AuthPlugin;
 import de.mwvb.maja.web.Action;
+import de.mwvb.maja.web.AuthPlugin;
 
 public class GoogleFeature implements AuthFeature {
 	private AuthPlugin authPlugin;
@@ -19,10 +19,5 @@ public class GoogleFeature implements AuthFeature {
 		String callback = "/google/callback"; // XXX ändern
 		Action.get("/login/google", new GoogleLoginAction(authPlugin, callback));
 		Action.get(callback, GoogleCallbackAction.class);
-	}
-
-	@Override
-	public void printInfo() {
-		System.out.println("Google authentication");
 	}
 }

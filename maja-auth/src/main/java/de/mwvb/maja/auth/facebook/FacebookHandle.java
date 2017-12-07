@@ -2,7 +2,7 @@ package de.mwvb.maja.auth.facebook;
 
 import com.github.scribejava.core.oauth.OAuth20Service;
 
-import de.mwvb.maja.auth.AuthPlugin;
+import de.mwvb.maja.web.AuthPlugin;
 
 /**
  * Facebook login handle - and storage for those objects

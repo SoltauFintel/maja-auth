@@ -6,10 +6,10 @@ import com.github.scribejava.apis.FacebookApi;
 import com.github.scribejava.core.builder.ServiceBuilder;
 import com.github.scribejava.core.oauth.OAuth20Service;
 
-import de.mwvb.maja.auth.AuthPlugin;
 import de.mwvb.maja.auth.HandleStorage;
 import de.mwvb.maja.web.ActionBase;
 import de.mwvb.maja.web.AppConfig;
+import de.mwvb.maja.web.AuthPlugin;
 
 /**
  * Asks Facebook for authorization
