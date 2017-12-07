@@ -13,7 +13,17 @@ public class MultiAuthFeature implements AuthFeature {
 	}
 	
 	@Override
+	public void init(AuthPlugin owner) {
+		features.forEach(feature -> feature.init(owner));
+	}
+
+	@Override
 	public void routes() {
 		features.forEach(feature -> feature.routes());
+	}
+
+	@Override
+	public void printInfo() {
+		features.forEach(feature -> feature.printInfo());
 	}
 }

@@ -13,7 +13,6 @@ import org.pmw.tinylog.Logger;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
-import com.google.inject.Injector;
 import com.google.inject.Module;
 
 import de.mwvb.maja.auth.facebook.FacebookAuthorization;
@@ -28,7 +27,6 @@ import de.mwvb.maja.web.AppConfig;
 import de.mwvb.maja.web.BroadcastListener;
 import de.mwvb.maja.web.Broadcaster;
 import de.mwvb.maja.web.Plugin;
-import de.mwvb.maja.web.Routes;
 import de.mwvb.maja.web.Template;
 import spark.Filter;
 import spark.ModelAndView;
@@ -49,13 +47,9 @@ public class AuthPlugin implements Plugin, BroadcastListener, Filter {
 	@Inject
 	private AppConfig config;
 	@Inject
-	private Injector injector;
-	@Inject
 	private Broadcaster broadcaster;
 	@Inject
 	private RememberMeFeature rememberMe;
-	@Inject
-	private Routes routes;
 	private Authorization authorization; // set in install()
 	private AuthFeature feature; // set in install()
 	
@@ -74,7 +68,6 @@ public class AuthPlugin implements Plugin, BroadcastListener, Filter {
 			@Override
 			protected void configure() {
 				bind(RememberMeFeature.class).to(getRememberMeClass());
-				bind(AuthPlugin.class).toInstance(AuthPlugin.this);
 			}
 		};
 	}
@@ -104,31 +97,23 @@ public class AuthPlugin implements Plugin, BroadcastListener, Filter {
 	public void install() {
 		feature = getFeature();
 		authorization = getAuthorization();
-		rememberMe.install();
+		if (feature != null) {
+			feature.init(this);
+
+			rememberMe.install();
+		}
 	}
 	
 	protected AuthFeature getFeature() {
 		if (hasFacebook() && hasGoogle()) {
-			return new MultiAuthFeature(getFacebookFeature(), getGoogleFeature());
+			return new MultiAuthFeature(new FacebookFeature(), new GoogleFeature());
 		} else if (hasFacebook()) {
-			return getFacebookFeature();
+			return new FacebookFeature();
 		} else if (hasGoogle()) {
-			return getGoogleFeature();
+			return new GoogleFeature();
 		} else {
 			return null; // AuthPlugin added, but Auth is not active
 		}
-	}
-
-	private FacebookFeature getFacebookFeature() {
-		FacebookFeature facebook = new FacebookFeature();
-		injector.injectMembers(facebook);
-		return facebook;
-	}
-
-	private GoogleFeature getGoogleFeature() {
-		GoogleFeature google = new GoogleFeature();
-		injector.injectMembers(google);
-		return google;
 	}
 
 	protected Authorization getAuthorization() {
@@ -157,7 +142,7 @@ public class AuthPlugin implements Plugin, BroadcastListener, Filter {
 			before(this);
 		
 			notProtected.add("/logout");
-			routes._get("/logout", LogoutAction.class);
+			Action.get("/logout", new LogoutAction(rememberMe));
 			
 			feature.routes();
 		}
@@ -165,9 +150,11 @@ public class AuthPlugin implements Plugin, BroadcastListener, Filter {
 
 	@Override
 	public void printInfo() {
+		feature.printInfo();
+		rememberMe.printInfo();
 	}
 
-	public String getUser(Session session) {
+	public static String getUser(Session session) {
 		return session.attribute(USER_ATTR);
 	}
 	
@@ -175,7 +162,7 @@ public class AuthPlugin implements Plugin, BroadcastListener, Filter {
 		return session.attribute(USERID_ATTR);
 	}
 
-	public void setLoginData(boolean loggedIn, String name, String id, Session session) {
+	static void setLoginData(boolean loggedIn, String name, String id, Session session) {
 		session.attribute(LOGGED_IN, loggedIn ? LOGGED_IN_YES : null);
 		session.attribute(USER_ATTR, name);
 		session.attribute(USERID_ATTR, id);
