@@ -11,22 +11,10 @@ import java.util.Set;
 import org.eclipse.jetty.http.HttpStatus;
 import org.pmw.tinylog.Logger;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.Inject;
-import com.google.inject.Module;
-
-import de.mwvb.maja.auth.facebook.FacebookAuthorization;
-import de.mwvb.maja.auth.facebook.FacebookFeature;
-import de.mwvb.maja.auth.google.GoogleAuthorization;
-import de.mwvb.maja.auth.google.GoogleFeature;
 import de.mwvb.maja.auth.rememberme.IKnownUser;
 import de.mwvb.maja.auth.rememberme.NoOpRememberMeFeature;
 import de.mwvb.maja.auth.rememberme.RememberMeFeature;
 import de.mwvb.maja.web.Action;
-import de.mwvb.maja.web.AppConfig;
-import de.mwvb.maja.web.BroadcastListener;
-import de.mwvb.maja.web.Broadcaster;
-import de.mwvb.maja.web.Plugin;
 import de.mwvb.maja.web.Template;
 import spark.Filter;
 import spark.ModelAndView;
@@ -37,115 +25,65 @@ import spark.Session;
 /**
  * Web application plugin for authorization
  */
-public class AuthPlugin implements Plugin, BroadcastListener, Filter {
-	public static final String NOT_PROTECTED = "notProtected";
+public class AuthPlugin implements de.mwvb.maja.web.AuthPlugin, Filter {
 	public static final String USER_ATTR = "user";
 	private static final String LOGGED_IN = "logged_in";
 	private static final String LOGGED_IN_YES = "yes";
 	private static final String USERID_ATTR = "user_id";
 	private final Set<String> notProtected = new HashSet<>();
-	@Inject
-	private AppConfig config;
-	@Inject
-	private Broadcaster broadcaster;
-	@Inject
-	private RememberMeFeature rememberMe;
-	private Authorization authorization; // set in install()
-	private AuthFeature feature; // set in install()
-	
-	public AuthPlugin() {
-		initNotProtected();
+	private final Authorization authorization;
+	private final AuthFeature feature;
+	private final RememberMeFeature rememberMe;
+	private boolean active = true;
+
+	public AuthPlugin(Authorization authorization, AuthFeature feature) {
+		this(authorization, feature, new NoOpRememberMeFeature());
+	}
+
+	public AuthPlugin(Authorization authorization, AuthFeature feature, RememberMeFeature rememberMe) {
+		this.authorization = authorization;
+		this.feature = feature;
+		this.feature.init(this);
+		this.rememberMe = rememberMe;
 	}
 	
-	protected void initNotProtected() {
-		notProtected.add("/rest/_");
-		notProtected.add("/favicon.ico");
+	@Override
+	public void init() {
+		// TODO Das muss im AuthPlugin gemacht werden.    	
+//		 * Deactivate auth feature. That means that everybody can access every resource. The deactivate-feature is
+//		 * only for development and installation - not for production. This method() must be called before routes() is called.
+//		if ("false".equals(config.get("auth"))) {
+//			if (!development) {
+//				System.err.println("[WARNING] Authentication is deactivated! Web application is not secure.");
+//			}
+//			active = false;
+//		}
 	}
 
 	@Override
-	public Module getModule() {
-		return new AbstractModule() {
-			@Override
-			protected void configure() {
-				bind(RememberMeFeature.class).to(getRememberMeClass());
-			}
-		};
-	}
-	
-	protected Class<? extends RememberMeFeature> getRememberMeClass() {
-		return NoOpRememberMeFeature.class;
-	}
-	
-	@Override
-	public void prepare() {
-		broadcaster.addListener(this);
-	}
-
-	/** Handle broadcast during setup */
-	@Override
-	public void handle(String topic, String data) {
-		if (NOT_PROTECTED.equals(topic) && data != null && !data.trim().isEmpty()) {
-			addNotProtected(data.trim());
-		}
-	}
-	
 	public void addNotProtected(String path) {
 		notProtected.add(path);
 	}
 
-	@Override
-	public void install() {
-		feature = getFeature();
-		authorization = getAuthorization();
-		if (feature != null) {
-			feature.init(this);
-
-			rememberMe.install();
+	protected boolean isProtected(String uri) {
+		for (String begin : notProtected) {
+			if (uri.startsWith(begin)) {
+				return false;
+			}
 		}
-	}
-	
-	protected AuthFeature getFeature() {
-		if (hasFacebook() && hasGoogle()) {
-			return new MultiAuthFeature(new FacebookFeature(), new GoogleFeature());
-		} else if (hasFacebook()) {
-			return new FacebookFeature();
-		} else if (hasGoogle()) {
-			return new GoogleFeature();
-		} else {
-			return null; // AuthPlugin added, but Auth is not active
-		}
-	}
-
-	protected Authorization getAuthorization() {
-		if (hasFacebook() && hasGoogle()) {
-			return new AuthorizationDispatcher(new FacebookAuthorization(), new GoogleAuthorization());
-		} else if (hasFacebook()) {
-			return new FacebookAuthorization();
-		} else if (hasGoogle()) {
-			return new GoogleAuthorization();
-		} else {
-			return null; // AuthPlugin added, but Auth is not active
-		}
-	}
-
-	private boolean hasFacebook() {
-		return config.hasFilledKey("facebook.key");
-	}
-
-	private boolean hasGoogle() {
-		return config.hasFilledKey("google.key");
+		return true;
 	}
 
 	@Override
 	public void routes() {
-		if (feature != null) {
+		if (active) {
 			before(this);
-		
-			notProtected.add("/logout");
-			Action.get("/logout", new LogoutAction(rememberMe));
-			
-			feature.routes();
 		}
+		
+		addNotProtected("/logout");
+		Action.get("/logout", new LogoutAction(rememberMe));
+		
+		feature.routes();
 	}
 
 	@Override
@@ -168,7 +106,6 @@ public class AuthPlugin implements Plugin, BroadcastListener, Filter {
 		session.attribute(USERID_ATTR, id);
 	}
 	
-	/** Handle request during program execution */
 	@Override
 	public void handle(Request req, Response res) throws Exception {
 		String uri = req.uri();
@@ -185,15 +122,6 @@ public class AuthPlugin implements Plugin, BroadcastListener, Filter {
 		}
 	}
 	
-	protected boolean isProtected(String uri) {
-		for (String begin : notProtected) {
-			if (uri.startsWith(begin)) {
-				return false;
-			}
-		}
-		return true;
-	}
-
 	/**
 	 * Called by the callback action to login the user to the Maja system.
 	 * 

@@ -6,10 +6,6 @@ import spark.Response;
 public class NoOpRememberMeFeature implements RememberMeFeature {
 
 	@Override
-	public void install() {
-	}
-
-	@Override
 	public void rememberMe(boolean rememberMeWanted, Response res, String user, String userId) {
 	}
 	
