@@ -11,10 +11,15 @@ import java.util.Set;
 import org.eclipse.jetty.http.HttpStatus;
 import org.pmw.tinylog.Logger;
 
+import de.mwvb.maja.auth.facebook.FacebookAuthorization;
+import de.mwvb.maja.auth.facebook.FacebookFeature;
+import de.mwvb.maja.auth.google.GoogleAuthorization;
+import de.mwvb.maja.auth.google.GoogleFeature;
 import de.mwvb.maja.auth.rememberme.IKnownUser;
 import de.mwvb.maja.auth.rememberme.NoOpRememberMeFeature;
 import de.mwvb.maja.auth.rememberme.RememberMeFeature;
 import de.mwvb.maja.web.Action;
+import de.mwvb.maja.web.AppConfig;
 import de.mwvb.maja.web.Template;
 import spark.Filter;
 import spark.ModelAndView;
@@ -34,24 +39,53 @@ public class AuthPlugin implements de.mwvb.maja.web.AuthPlugin, Filter {
 	private final Authorization authorization;
 	private final AuthFeature feature;
 	private final RememberMeFeature rememberMe;
-	private boolean active = true;
 
-	public AuthPlugin(Authorization authorization, AuthFeature feature) {
-		this(authorization, feature, new NoOpRememberMeFeature());
+	/** No remember-me constructor */
+	public AuthPlugin() {
+		this(new NoOpRememberMeFeature());
 	}
 
-	public AuthPlugin(Authorization authorization, AuthFeature feature, RememberMeFeature rememberMe) {
-		this.authorization = authorization;
-		this.feature = feature;
-		this.feature.init(this);
+	public AuthPlugin(RememberMeFeature rememberMe) {
+		this.authorization = getAuthorization();
+		this.feature = getFeature();
 		this.rememberMe = rememberMe;
 	}
 	
-	@Override
-	public void deactivate() {
-		active = false;
+	protected AuthFeature getFeature() {
+		AuthFeature ret;
+		if (hasGoogle() && hasFacebook()) {
+			ret = new MultiAuthFeature(new GoogleFeature(), new FacebookFeature());
+		} else if (hasGoogle()) {
+			ret = new GoogleFeature();
+		} else if (hasFacebook()) {
+			ret = new FacebookFeature();
+		} else {
+			return null;
+		}
+		ret.init(this);
+		return ret;
 	}
-
+	
+	protected Authorization getAuthorization() {
+		if (hasGoogle() && hasFacebook()) {
+			return new AuthorizationDispatcher(new GoogleAuthorization(), new FacebookAuthorization());
+		} else if (hasGoogle()) {
+			return new GoogleAuthorization();
+		} else if (hasFacebook()) {
+			return new FacebookAuthorization();
+		} else {
+			return null;
+		}
+	}
+	
+	private boolean hasGoogle() {
+		return new AppConfig().hasFilledKey("google.key");
+	}
+	
+	private boolean hasFacebook() {
+		return new AppConfig().hasFilledKey("facebook.key");
+	}
+	
 	@Override
 	public void addNotProtected(String path) {
 		notProtected.add(path);
@@ -68,14 +102,14 @@ public class AuthPlugin implements de.mwvb.maja.web.AuthPlugin, Filter {
 
 	@Override
 	public void routes() {
-		if (active) {
+		if (feature != null) {
 			before(this);
+
+			addNotProtected("/logout");
+			Action.get("/logout", new LogoutAction(rememberMe));
+			
+			feature.routes();
 		}
-		
-		addNotProtected("/logout");
-		Action.get("/logout", new LogoutAction(rememberMe));
-		
-		feature.routes();
 	}
 
 	public static String getUser(Session session) {
@@ -108,7 +142,17 @@ public class AuthPlugin implements de.mwvb.maja.web.AuthPlugin, Filter {
 		}
 	}
 	
-	@Override
+	/**
+	 * Called by the callback action to login the user to the Maja system.
+	 * 
+	 * @param req Request
+	 * @param res Response
+	 * @param name user name from the foreign auth service
+	 * @param foreignId user id from the foreign auth service
+	 * @param service id of the auth service
+	 * @param rememberMe true if the remember service shall store the login, false if the remember service shall delete the login
+	 * @return usually "" because a redirect to another page will be executed
+	 */
 	public String login(Request req, Response res, String name, String foreignId, String service, boolean rememberMeWanted) {
 		String msg = authorization.check(req, res, name, foreignId, service);
 		if (msg != null) {

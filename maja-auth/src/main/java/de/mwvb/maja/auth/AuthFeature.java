@@ -1,7 +1,5 @@
 package de.mwvb.maja.auth;
 
-import de.mwvb.maja.web.AuthPlugin;
-
 /**
  * Feature for AuthPlugin
  */

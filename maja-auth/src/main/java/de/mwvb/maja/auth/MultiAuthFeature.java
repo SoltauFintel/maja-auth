@@ -3,8 +3,6 @@ package de.mwvb.maja.auth;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.mwvb.maja.web.AuthPlugin;
-
 public class MultiAuthFeature implements AuthFeature {
 	private final List<AuthFeature> features = new ArrayList<>();
 	

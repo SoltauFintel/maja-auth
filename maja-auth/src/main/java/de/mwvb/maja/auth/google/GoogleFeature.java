@@ -1,8 +1,8 @@
 package de.mwvb.maja.auth.google;
 
 import de.mwvb.maja.auth.AuthFeature;
+import de.mwvb.maja.auth.AuthPlugin;
 import de.mwvb.maja.web.Action;
-import de.mwvb.maja.web.AuthPlugin;
 
 public class GoogleFeature implements AuthFeature {
 	private AuthPlugin authPlugin;

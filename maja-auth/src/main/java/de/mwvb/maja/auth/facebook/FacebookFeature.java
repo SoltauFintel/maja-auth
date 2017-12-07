@@ -1,8 +1,8 @@
 package de.mwvb.maja.auth.facebook;
 
 import de.mwvb.maja.auth.AuthFeature;
+import de.mwvb.maja.auth.AuthPlugin;
 import de.mwvb.maja.web.Action;
-import de.mwvb.maja.web.AuthPlugin;
 
 /**
  * Add this feature to AuthPlugin to allow the user to use Facebook for authorization.
