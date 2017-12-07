@@ -22,7 +22,7 @@ public class FacebookCallbackAction extends ActionBase {
 	@Override
 	public String run() {
 		String key = req.queryParams(KEY);
-		LoginData handle = FacebookLoginAction.pop(key);
+		FacebookHandle handle = FacebookLoginAction.pop(key);
 		if (handle == null) {
 			throw new RuntimeException("Login tooks too long!");
 			// host= Eintrag in AppConfig.properties könnte falsch sein.
@@ -34,7 +34,7 @@ public class FacebookCallbackAction extends ActionBase {
 		}
 	}
 	
-	private String login(Request req, spark.Response res, LoginData h) throws IOException, InterruptedException, ExecutionException {
+	private String login(Request req, spark.Response res, FacebookHandle h) throws IOException, InterruptedException, ExecutionException {
 		String code = req.queryParams("code");
 		OAuth20Service oauth = h.getOauth();
 		OAuth2AccessToken accessToken = oauth.getAccessToken(code);

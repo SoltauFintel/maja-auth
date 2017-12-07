@@ -10,12 +10,12 @@ import com.github.scribejava.core.oauth.OAuth20Service;
 
 import de.mwvb.maja.auth.AuthPlugin;
 import de.mwvb.maja.auth.HandleStorage;
-import de.mwvb.maja.auth.facebook.LoginData;
+import de.mwvb.maja.auth.facebook.FacebookHandle;
 import de.mwvb.maja.web.ActionBase;
 import de.mwvb.maja.web.AppConfig;
 
 public class GoogleLoginAction extends ActionBase {
-	private static final HandleStorage<LoginData> handles = new HandleStorage<>();
+	private static final HandleStorage<FacebookHandle> handles = new HandleStorage<>();
 	private final AuthPlugin authPlugin;
 	private final String callback;
 	
@@ -44,12 +44,12 @@ public class GoogleLoginAction extends ActionBase {
         additionalParams.put("prompt", "consent");
 		String url = oauth.getAuthorizationUrl(additionalParams);
 		String url2 = config.get("google.url");
-		handles.push(secretState, new LoginData(oauth, url2, authPlugin, remember));
+		handles.push(secretState, new FacebookHandle(oauth, url2, authPlugin, remember));
 		res.redirect(url);
 		return "";
 	}
 	
-	public static LoginData pop(String key) {
+	public static FacebookHandle pop(String key) {
 		return handles.pop(key);
 	}
 }
